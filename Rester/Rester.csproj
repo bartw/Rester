@@ -41,7 +41,7 @@
     <Compile Include="Client.cs" />
     <Compile Include="OAuthHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TimeSpanSemaphore.cs" />
+    <Compile Include="Throttler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Utilities">

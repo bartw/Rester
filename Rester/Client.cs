@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace BeeWee.Rester
 {
     public class Client
     {
-        private TimeSpanSemaphore _throttler;
+        private Throttler _throttler;
 
         public Client()
         {
@@ -22,7 +21,7 @@ namespace BeeWee.Rester
                 throw new ArgumentOutOfRangeException("maxCount", "maxCount should be bigger than 0.");
             }
 
-            _throttler = new TimeSpanSemaphore(maxCount, resetSpan);
+            _throttler = new Throttler(maxCount, resetSpan);
         }
 
         public async Task<HttpResponseMessage> Get(string uri)
@@ -68,7 +67,7 @@ namespace BeeWee.Rester
 
             if (_throttler != null)
             {
-                return await _throttler.RunAsync<HttpRequestMessage, HttpResponseMessage>(client.SendAsync, request, CancellationToken.None);
+                return await _throttler.RunAsync<HttpRequestMessage, HttpResponseMessage>(client.SendAsync, request);
             }
             else
             {
