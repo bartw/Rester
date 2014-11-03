@@ -8,14 +8,26 @@ namespace BeeWee.Rester
     public class Client
     {
         private Throttler _throttler;
+        private SignatureMethod _signatureMethod;
 
-        public Client()
+        public Client() : this(SignatureMethod.PLAINTEXT)
         {
+        }
+
+        public Client(SignatureMethod signatureMethod)
+        {
+            _signatureMethod = signatureMethod;
             _throttler = null;
         }
 
-        public Client(int maxCount, TimeSpan resetSpan)
+        public Client(int maxCount, TimeSpan resetSpan) : this(SignatureMethod.PLAINTEXT, maxCount, resetSpan)
         {
+        }
+
+        public Client(SignatureMethod signatureMethod, int maxCount, TimeSpan resetSpan)
+        {
+            _signatureMethod = signatureMethod;
+
             if (maxCount < 1)
             {
                 throw new ArgumentOutOfRangeException("maxCount", "maxCount should be bigger than 0.");
@@ -50,7 +62,16 @@ namespace BeeWee.Rester
         {
             var method = HttpMethod.Get;
 
-            var oauthHeaders = OAuthHelper.GenerateOAuthHeaders(uri, method.ToString(), consumerKey, consumerSecret, oauthKey, oauthSecret, verifier);
+            Dictionary<string, string> oauthHeaders;
+            
+            if (_signatureMethod == SignatureMethod.HMACSHA1)
+            {
+                oauthHeaders = OAuthHelper.GenerateOAuthHeaders(uri, method.ToString(), consumerKey, consumerSecret, oauthKey, oauthSecret, verifier);
+            }
+            else
+            {
+                oauthHeaders = OAuthHelper.GeneratePlainOAuthHeaders(uri, method.ToString(), consumerKey, consumerSecret, oauthKey, oauthSecret, verifier);
+            }
 
             if (headers == null)
             {

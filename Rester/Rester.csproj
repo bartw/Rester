@@ -41,6 +41,7 @@
     <Compile Include="Client.cs" />
     <Compile Include="OAuthHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SignatureMethod.cs" />
     <Compile Include="Throttler.cs" />
   </ItemGroup>
   <ItemGroup>

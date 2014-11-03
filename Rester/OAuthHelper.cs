@@ -11,6 +11,48 @@ namespace BeeWee.Rester
 {
     internal static class OAuthHelper
     {
+        public static Dictionary<string, string> GeneratePlainOAuthHeaders(string uri, string method, string consumerKey, string consumerSecret, string tokenKey, string tokenSecret, string verifier)
+        {
+            var random = new Random();
+            var headers = new Dictionary<string, string>();
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("OAuth ");
+            
+            sb.AppendFormat("{0}=\"{1}\",", "oauth_consumer_key", consumerKey);
+            sb.AppendFormat("{0}=\"{1}\",", "oauth_nonce", random.Next().ToString());
+
+            if (tokenKey != null && tokenKey.Length > 0)
+            {
+                sb.AppendFormat("{0}=\"{1}\",", "oauth_token", tokenKey);
+            }
+
+            sb.AppendFormat("{0}=\"{1}{2}", "oauth_signature", consumerSecret, "&");
+
+            if (tokenSecret != null && tokenSecret.Length > 0)
+            {
+                sb.AppendFormat("{0}", tokenSecret);
+            }
+
+            sb.Append("\",");
+
+            sb.AppendFormat("{0}=\"{1}\",", "oauth_signature_method", "PLAINTEXT");
+            sb.AppendFormat("{0}=\"{1}\",", "oauth_timestamp", DateTime.UtcNow.ToUnixTime().ToString());
+
+            if (verifier != null && verifier.Length > 0)
+            {
+                sb.AppendFormat("{0}=\"{1}\",", "oauth_verifier", verifier);
+            }
+
+            sb.AppendFormat("{0}=\"{1}\"", "oauth_version", "1.0");
+            
+
+            headers.Add(HttpRequestHeader.Authorization.ToString(), sb.ToString());
+
+            return headers;
+        }
+
         public static Dictionary<string, string> GenerateOAuthHeaders(string uri, string method, string consumerKey, string consumerSecret, string tokenKey, string tokenSecret, string verifier)
         {
             var random = new Random();
