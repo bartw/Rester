@@ -11,7 +11,7 @@ namespace BeeWee.Rester
 {
     internal static class OAuthHelper
     {
-        public static Dictionary<string, string> GeneratePlainOAuthHeaders(string uri, string method, string consumerKey, string consumerSecret, string tokenKey, string tokenSecret, string verifier)
+        public static Dictionary<string, string> GeneratePlainOAuthHeaders(Request request)
         {
             var random = new Random();
             var headers = new Dictionary<string, string>();
@@ -20,19 +20,19 @@ namespace BeeWee.Rester
 
             sb.Append("OAuth ");
             
-            sb.AppendFormat("{0}=\"{1}\",", "oauth_consumer_key", consumerKey);
+            sb.AppendFormat("{0}=\"{1}\",", "oauth_consumer_key", request.ConsumerKey);
             sb.AppendFormat("{0}=\"{1}\",", "oauth_nonce", random.Next().ToString());
 
-            if (tokenKey != null && tokenKey.Length > 0)
+            if (request.OAuthKey != null && request.OAuthKey.Length > 0)
             {
-                sb.AppendFormat("{0}=\"{1}\",", "oauth_token", tokenKey);
+                sb.AppendFormat("{0}=\"{1}\",", "oauth_token", request.OAuthKey);
             }
 
-            sb.AppendFormat("{0}=\"{1}{2}", "oauth_signature", consumerSecret, "&");
+            sb.AppendFormat("{0}=\"{1}{2}", "oauth_signature", request.ConsumerSecret, "&");
 
-            if (tokenSecret != null && tokenSecret.Length > 0)
+            if (request.OAuthSecret != null && request.OAuthSecret.Length > 0)
             {
-                sb.AppendFormat("{0}", tokenSecret);
+                sb.AppendFormat("{0}", request.OAuthSecret);
             }
 
             sb.Append("\",");
@@ -40,9 +40,9 @@ namespace BeeWee.Rester
             sb.AppendFormat("{0}=\"{1}\",", "oauth_signature_method", "PLAINTEXT");
             sb.AppendFormat("{0}=\"{1}\",", "oauth_timestamp", DateTime.UtcNow.ToUnixTime().ToString());
 
-            if (verifier != null && verifier.Length > 0)
+            if (request.Verifier != null && request.Verifier.Length > 0)
             {
-                sb.AppendFormat("{0}=\"{1}\",", "oauth_verifier", verifier);
+                sb.AppendFormat("{0}=\"{1}\",", "oauth_verifier", request.Verifier);
             }
 
             sb.AppendFormat("{0}=\"{1}\"", "oauth_version", "1.0");
@@ -53,25 +53,25 @@ namespace BeeWee.Rester
             return headers;
         }
 
-        public static Dictionary<string, string> GenerateOAuthHeaders(string uri, string method, string consumerKey, string consumerSecret, string tokenKey, string tokenSecret, string verifier)
+        public static Dictionary<string, string> GenerateOAuthHeaders(Request request)
         {
             var random = new Random();
             var headers = new Dictionary<string, string>();
 
-            headers.Add("oauth_consumer_key", consumerKey);
+            headers.Add("oauth_consumer_key", request.ConsumerKey);
             headers.Add("oauth_nonce", random.Next().ToString());
             headers.Add("oauth_timestamp", DateTime.UtcNow.ToUnixTime().ToString());
             headers.Add("oauth_signature_method", "HMAC-SHA1");
             headers.Add("oauth_version", "1.0");
 
-            if (tokenKey != null && tokenKey.Length > 0)
+            if (request.OAuthKey != null && request.OAuthKey.Length > 0)
             {
-                headers.Add("oauth_token", tokenKey);
+                headers.Add("oauth_token", request.OAuthKey);
             }
 
-            if (verifier != null && verifier.Length > 0)
+            if (request.Verifier != null && request.Verifier.Length > 0)
             {
-                headers.Add("oauth_verifier", verifier);
+                headers.Add("oauth_verifier", request.Verifier);
             }
 
             StringBuilder sb = new StringBuilder();
@@ -83,7 +83,7 @@ namespace BeeWee.Rester
                 sb.Append(string.Format("{0}=\"{1}\",", header.Key, header.Value));
             }
 
-            sb.Append(string.Format("oauth_signature=\"{0}\"", GenerateSignature(uri, method, consumerSecret, tokenKey, tokenSecret, headers)));
+            sb.Append(string.Format("oauth_signature=\"{0}\"", GenerateSignature(request.Uri, request.Method.ToString(), request.ConsumerSecret, request.OAuthKey, request.OAuthSecret, headers)));
 
             headers.Add(HttpRequestHeader.Authorization.ToString(), sb.ToString());
 
