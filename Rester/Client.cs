@@ -7,7 +7,7 @@ namespace BeeWee.Rester
 {
     public class Client : IClient
     {
-        public async Task<HttpResponseMessage> Execute(Request request)
+        public async Task<HttpResponseMessage> ExecuteAsync(Request request)
         {
             var client = new HttpClient();
             return await client.SendAsync(CreateHttpRequest(request));

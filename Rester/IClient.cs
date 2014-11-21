@@ -5,6 +5,6 @@ namespace BeeWee.Rester
 {
     public interface IClient
     {
-        Task<HttpResponseMessage> Execute(Request request);
+        Task<HttpResponseMessage> ExecuteAsync(Request request);
     }
 }
