@@ -5,6 +5,6 @@ namespace BeeWee.Rester
 {
     public interface IClient
     {
-        Task<HttpResponseMessage> ExecuteAsync(Request request);
+        Task<HttpResponseMessage> ExecuteRawAsync(Request request, IAuthenticator authenticator);
     }
 }

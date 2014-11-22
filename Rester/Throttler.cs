@@ -22,7 +22,7 @@ namespace BeeWee.Rester
             _releaseTimes.Enqueue(DateTime.MinValue);
         }
 
-        public async Task<TResult> RunAsync<T1, TResult>(Func<T1, Task<TResult>> action, T1 param)
+        public async Task<TResult> RunAsync<T1, T2, TResult>(Func<T1, T2, Task<TResult>> action, T1 param1, T2 param2)
         {
             await _pool.WaitAsync();
 
@@ -41,7 +41,7 @@ namespace BeeWee.Rester
 
             try
             {
-                return await action(param);
+                return await action(param1, param2);
             }
             finally
             {

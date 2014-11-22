@@ -18,9 +18,9 @@ namespace BeeWee.Rester
             _throttler = new Throttler(maxCount, resetSpan);
         }
 
-        public new async Task<HttpResponseMessage> ExecuteAsync(Request request)
+        public new async Task<HttpResponseMessage> ExecuteRawAsync(Request request, IAuthenticator authenticator = null)
         {
-            return await _throttler.RunAsync<Request, HttpResponseMessage>(base.ExecuteAsync, request);
+            return await _throttler.RunAsync<Request, IAuthenticator, HttpResponseMessage>(base.ExecuteRawAsync, request, authenticator);
         }
     }
 }

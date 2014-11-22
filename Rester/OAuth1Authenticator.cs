@@ -9,9 +9,39 @@ using Windows.Storage.Streams;
 
 namespace BeeWee.Rester
 {
-    internal static class OAuthHelper
+    public class OAuth1Authenticator : IAuthenticator
     {
-        public static Dictionary<string, string> GeneratePlainOAuthHeaders(Request request)
+        public SignatureMethod Method { get; private set; }
+        public string ConsumerKey { get; private set; }
+        public string ConsumerSecret { get; private set; }
+        public string TokenKey { get; private set; }
+        public string TokenSecret { get; private set; }
+        public string Verifier { get; private set; }
+
+        public OAuth1Authenticator(SignatureMethod method, string consumerKey, string consumerSecret, string tokenKey = null, string tokenSecret = null, string verifier = null)
+        {
+            Method = method;
+            ConsumerKey = consumerKey;
+            ConsumerSecret = consumerSecret;
+            TokenKey = tokenKey;
+            TokenSecret = tokenSecret;
+            Verifier = verifier;
+        }
+
+        public Dictionary<string, string> GetHeaders(Request request)
+        {
+            switch (Method)
+            {
+                case SignatureMethod.PLAINTEXT:
+                    return GeneratePlainOAuthHeaders(request);
+                case SignatureMethod.HMACSHA1:
+                    return GenerateHmacOAuthHeaders(request);
+                default:
+                    return null;
+            }
+        }
+
+        private Dictionary<string, string> GeneratePlainOAuthHeaders(Request request)
         {
             var random = new Random();
             var headers = new Dictionary<string, string>();
@@ -19,20 +49,20 @@ namespace BeeWee.Rester
             StringBuilder sb = new StringBuilder();
 
             sb.Append("OAuth ");
-            
-            sb.AppendFormat("{0}=\"{1}\",", "oauth_consumer_key", request.ConsumerKey);
+
+            sb.AppendFormat("{0}=\"{1}\",", "oauth_consumer_key", ConsumerKey);
             sb.AppendFormat("{0}=\"{1}\",", "oauth_nonce", random.Next().ToString());
 
-            if (request.OAuthKey != null && request.OAuthKey.Length > 0)
+            if (!string.IsNullOrEmpty(TokenKey))
             {
-                sb.AppendFormat("{0}=\"{1}\",", "oauth_token", request.OAuthKey);
+                sb.AppendFormat("{0}=\"{1}\",", "oauth_token", TokenKey);
             }
 
-            sb.AppendFormat("{0}=\"{1}{2}", "oauth_signature", request.ConsumerSecret, "&");
+            sb.AppendFormat("{0}=\"{1}{2}", "oauth_signature", ConsumerSecret, "&");
 
-            if (request.OAuthSecret != null && request.OAuthSecret.Length > 0)
+            if (!string.IsNullOrEmpty(TokenSecret))
             {
-                sb.AppendFormat("{0}", request.OAuthSecret);
+                sb.AppendFormat("{0}", TokenSecret);
             }
 
             sb.Append("\",");
@@ -40,38 +70,38 @@ namespace BeeWee.Rester
             sb.AppendFormat("{0}=\"{1}\",", "oauth_signature_method", "PLAINTEXT");
             sb.AppendFormat("{0}=\"{1}\",", "oauth_timestamp", DateTime.UtcNow.ToUnixTime().ToString());
 
-            if (request.Verifier != null && request.Verifier.Length > 0)
+            if (!string.IsNullOrEmpty(Verifier))
             {
-                sb.AppendFormat("{0}=\"{1}\",", "oauth_verifier", request.Verifier);
+                sb.AppendFormat("{0}=\"{1}\",", "oauth_verifier", Verifier);
             }
 
             sb.AppendFormat("{0}=\"{1}\"", "oauth_version", "1.0");
-            
+
 
             headers.Add(HttpRequestHeader.Authorization.ToString(), sb.ToString());
 
             return headers;
         }
 
-        public static Dictionary<string, string> GenerateOAuthHeaders(Request request)
+        private Dictionary<string, string> GenerateHmacOAuthHeaders(Request request)
         {
             var random = new Random();
             var headers = new Dictionary<string, string>();
 
-            headers.Add("oauth_consumer_key", request.ConsumerKey);
+            headers.Add("oauth_consumer_key", ConsumerKey);
             headers.Add("oauth_nonce", random.Next().ToString());
             headers.Add("oauth_timestamp", DateTime.UtcNow.ToUnixTime().ToString());
             headers.Add("oauth_signature_method", "HMAC-SHA1");
             headers.Add("oauth_version", "1.0");
 
-            if (request.OAuthKey != null && request.OAuthKey.Length > 0)
+            if (!string.IsNullOrEmpty(TokenKey))
             {
-                headers.Add("oauth_token", request.OAuthKey);
+                headers.Add("oauth_token", TokenKey);
             }
 
-            if (request.Verifier != null && request.Verifier.Length > 0)
+            if (!string.IsNullOrEmpty(Verifier))
             {
-                headers.Add("oauth_verifier", request.Verifier);
+                headers.Add("oauth_verifier", Verifier);
             }
 
             StringBuilder sb = new StringBuilder();
@@ -83,7 +113,7 @@ namespace BeeWee.Rester
                 sb.Append(string.Format("{0}=\"{1}\",", header.Key, header.Value));
             }
 
-            sb.Append(string.Format("oauth_signature=\"{0}\"", GenerateSignature(request.Uri, request.Method.ToString(), request.ConsumerSecret, request.OAuthKey, request.OAuthSecret, headers)));
+            sb.Append(string.Format("oauth_signature=\"{0}\"", GenerateSignature(request.Uri, request.Method.ToString(), ConsumerSecret, TokenKey, TokenSecret, headers)));
 
             headers.Add(HttpRequestHeader.Authorization.ToString(), sb.ToString());
 

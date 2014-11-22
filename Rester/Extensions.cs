@@ -2,7 +2,7 @@
 
 namespace BeeWee.Rester
 {
-    public static class Extensions
+    internal static class Extensions
     {
         private static readonly DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 

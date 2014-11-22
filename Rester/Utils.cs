@@ -2,7 +2,7 @@
 
 namespace BeeWee.Rester
 {
-    public static class Utils
+    internal static class Utils
     {
         public static Dictionary<TKey, TValue> Merge<TKey, TValue>(IEnumerable<Dictionary<TKey, TValue>> dictionaries)
         {

@@ -7,16 +7,17 @@ namespace BeeWee.Rester
 {
     public class Client : IClient
     {
-        public async Task<HttpResponseMessage> ExecuteAsync(Request request)
+        public async Task<HttpResponseMessage> ExecuteRawAsync(Request request, IAuthenticator authenticator = null)
         {
             var client = new HttpClient();
-            return await client.SendAsync(CreateHttpRequest(request));
+            return await client.SendAsync(CreateHttpRequest(request, authenticator));
         }
 
-        private HttpRequestMessage CreateHttpRequest(Request request)
+        private HttpRequestMessage CreateHttpRequest(Request request, IAuthenticator authenticator)
         {
             var httpRequest = new HttpRequestMessage(request.Method, new Uri(request.Uri));
-            var headers = MergeHeaders(request);
+
+            var headers = MergeHeaders(request.Headers, authenticator != null ? authenticator.GetHeaders(request) : null);
 
             if (headers != null && headers.Count > 0)
             {
@@ -29,26 +30,23 @@ namespace BeeWee.Rester
             return httpRequest;
         }
 
-        private Dictionary<string, string> MergeHeaders(Request request)
+        private Dictionary<string, string> MergeHeaders(Dictionary<string, string> requestHeaders, Dictionary<string, string> authenticationHeaders)
         {
-            Dictionary<string, string> oauthHeaders;
-
-            if (request.SignatureMethod == SignatureMethod.HMACSHA1)
+            if (requestHeaders == null && authenticationHeaders == null)
             {
-                oauthHeaders = OAuthHelper.GenerateOAuthHeaders(request);
+                return null;
+            }
+            else if (requestHeaders == null)
+            {
+                return authenticationHeaders;
+            }
+            else if (authenticationHeaders == null)
+            {
+                return requestHeaders;
             }
             else
             {
-                oauthHeaders = OAuthHelper.GeneratePlainOAuthHeaders(request);
-            }
-
-            if (request.Headers == null)
-            {
-                return oauthHeaders;
-            }
-            else
-            {
-                return Utils.Merge(new Dictionary<string, string>[] { request.Headers, oauthHeaders });
+                return Utils.Merge(new Dictionary<string, string>[] { requestHeaders, authenticationHeaders });
             }
         }
     }
