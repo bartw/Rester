@@ -16,7 +16,17 @@ Features
 Problems, questions and suggestions
 -
 If you have problems, questions or suggestions you can post them in the [issues](https://github.com/bartw/Rester/issues) of this repository.
-Basic usage
+Usage
 -
-Throttled usage
--
+```c#
+//create a basic Rester client
+var client = new Client();
+//or create a throttled Rester client with 10 request in every 3 seconds
+var client = new ThrottledClient(10, TimeSpan.FromSeconds(3));
+//create a Rester get request
+var request = new GetRequest("http://api.discogs.com/releases/2817604");
+//create an optional authenticator
+var authenticator = new OAuth1Authenticator(SignatureMethod.PLAINTEXT, consumerKey, consumerSecret, tokenKey, tokenSecret, verifier);
+//send the request and await the response
+var response = await client.ExecuteRawAsync(request, authenticator);
+```
