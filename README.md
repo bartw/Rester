@@ -13,6 +13,7 @@ Features
 * OAuth1 authentication
 * Custom headers
 * Request throttling
+
 Problems, questions and suggestions
 -
 If you have problems, questions or suggestions you can post them in the [issues](https://github.com/bartw/Rester/issues) of this repository.
