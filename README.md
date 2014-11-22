@@ -17,6 +17,10 @@ Features
 Problems, questions and suggestions
 -
 If you have problems, questions or suggestions you can post them in the [issues](https://github.com/bartw/Rester/issues) of this repository.
+NuGet
+-
+You can add Rester to you project using the following command in the package manager console: 
+Install-Package Rester.dll, or go to [NuGet.org](https://www.nuget.org/packages/Rester.dll/1.0.0).
 Usage
 -
 ```c#
