@@ -20,7 +20,7 @@ If you have problems, questions or suggestions you can post them in the [issues]
 NuGet
 -
 You can add Rester to you project using the following command in the package manager console: 
-Install-Package Rester.dll, or go to [NuGet.org](https://www.nuget.org/packages/Rester.dll/1.0.0).
+Install-Package BeeWee.Rester, or go to [NuGet.org](https://www.nuget.org/packages/BeeWee.Rester/).
 Usage
 -
 ```c#
