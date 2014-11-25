@@ -23,7 +23,7 @@ namespace BeeWee.Rester
             {
                 foreach (var header in headers)
                 {
-                    request.Headers.Add(header.Key, header.Value);
+                    request.Headers[header.Key] = header.Value;
                 }
             }
 
