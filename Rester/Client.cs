@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BeeWee.Rester
@@ -16,6 +17,16 @@ namespace BeeWee.Rester
         private HttpRequestMessage CreateHttpRequest(Request request, IAuthenticator authenticator)
         {
             var httpRequest = new HttpRequestMessage(request.Method, new Uri(request.Uri));
+
+            if (request.Method == HttpMethod.Put)
+            {
+                var putRequest = request as PutRequest;
+
+                if (putRequest != null)
+                {
+                    HttpContent content = new StringContent(putRequest.JSonContent, Encoding.UTF8, "application/json");
+                }
+            }
 
             var headers = MergeHeaders(request.Headers, authenticator != null ? authenticator.GetHeaders(request) : null);
 
