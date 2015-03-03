@@ -1,12 +1,11 @@
 ﻿using System.Net.Http;
+using System.Text;
 
 namespace BeeWee.Rester
 {
-    public class PutRequest : Request
+    public class PutRequest : ContentRequest
     {
-        public string JSonContent { get; set; }
-
-        public PutRequest(string uri) : base(HttpMethod.Put, uri)
+        public PutRequest(string uri, string content, Encoding encoding, string mediaType) : base(HttpMethod.Put, uri, content, encoding, mediaType)
         {
         }
     }

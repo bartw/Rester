@@ -18,13 +18,13 @@ namespace BeeWee.Rester
         {
             var httpRequest = new HttpRequestMessage(request.Method, new Uri(request.Uri));
 
-            if (request.Method == HttpMethod.Put)
+            if (request.Method == HttpMethod.Post || request.Method == HttpMethod.Put)
             {
-                var putRequest = request as PutRequest;
+                var contentRequest = request as ContentRequest;
 
-                if (putRequest != null)
+                if (contentRequest != null && !string.IsNullOrEmpty(contentRequest.Content) && contentRequest.Encoding != null && !string.IsNullOrEmpty(contentRequest.MediaType))
                 {
-                    HttpContent content = new StringContent(putRequest.JSonContent, Encoding.UTF8, "application/json");
+                    httpRequest.Content = new StringContent(contentRequest.Content, contentRequest.Encoding, contentRequest.MediaType);
                 }
             }
 
